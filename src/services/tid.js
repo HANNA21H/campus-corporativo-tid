@@ -2,9 +2,54 @@ const API_BASE = '';
 
 export const TID_MOCK = {
   usuarios: [
-    { id: 1, nombre: 'Carlos Méndez', email: 'carlos@tid.com', password: '123456', rol: 'Estudiante', telefono: '555-0101', area: 'Tecnología', avatar: null },
-    { id: 2, nombre: 'Ana Gómez', email: 'ana@tid.com', password: '123456', rol: 'Instructor', telefono: '555-0202', area: 'RRHH', avatar: null },
-    { id: 3, nombre: 'Luis Herrera', email: 'luis@tid.com', password: '123456', rol: 'Admin', telefono: '555-0303', area: 'Operaciones', avatar: null },
+    {
+      id: 1,
+      nombre: 'Carlos Méndez',
+      email: 'carlos@tid.com',
+      password: '123456',
+      rol: 'Estudiante',
+      telefono: '555-0101',
+      area: 'Tecnología',
+      ciudad_residencia: 'Bogota',
+      direccion: 'Calle 72 # 10-34',
+      fecha_nacimiento: '1996-08-14',
+      nivel_academico: 'Profesional',
+      tipo_documento: 'Cedula de ciudadania',
+      documento: '1023456789',
+      avatar: null,
+    },
+    {
+      id: 2,
+      nombre: 'Ana Gómez',
+      email: 'ana@tid.com',
+      password: '123456',
+      rol: 'Instructor',
+      telefono: '555-0202',
+      area: 'RRHH',
+      ciudad_residencia: 'Medellin',
+      direccion: 'Carrera 43A # 7-50',
+      fecha_nacimiento: '1990-11-22',
+      nivel_academico: 'Especializacion',
+      tipo_documento: 'Cedula de ciudadania',
+      documento: '1002345678',
+      avatar: null,
+    },
+    {
+      id: 3,
+      nombre: 'Luis Herrera',
+      email: 'luis@tid.com',
+      password: '123456',
+      rol: 'Admin',
+      telefono: '555-0303',
+      area: 'Operaciones',
+      ciudad_residencia: 'Cali',
+      direccion: 'Avenida 6N # 23-18',
+      fecha_nacimiento: '1988-03-09',
+      nivel_academico: 'Maestria',
+      tipo_documento: 'Cedula de ciudadania',
+      documento: '79876543',
+      avatar: null,
+    },
   ],
   categorias: [
     { id: 1, nombre: 'Tecnología', color: '#3b82f6' },
@@ -177,7 +222,8 @@ export const tidApi = {
     const users = tidStorage.get('usuarios', TID_MOCK.usuarios);
     const u = users.find((x) => x.id === id);
     if (!u) throw new Error('Usuario no encontrado.');
-    const r = { ...u };
+    const defaults = TID_MOCK.usuarios.find((x) => x.id === id) || {};
+    const r = { ...defaults, ...u };
     delete r.password;
     return r;
   },

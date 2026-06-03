@@ -1,10 +1,10 @@
 import React from 'react';
-import { useRouteLoaderData } from 'react-router-dom';
-import { EmptyState, FormField, Modal, ProgressRing, Spinner } from '../../components/components.jsx';
+import { useNavigate, useRouteLoaderData } from 'react-router-dom';
+import { EmptyState, ProgressRing, Spinner } from '../../components/components.jsx';
 import { COLORS } from '../../components/theme.js';
 import { toast } from '../../helpers/alerts.js';
 import { tidApi } from '../../services/tid.js';
-import {Award,BookOpen,Briefcase,CalendarCheck,CheckCircle2,Clock,Edit3,GraduationCap,Mail,Medal,Phone,ShieldCheck,Sparkles,Star,Target,Trophy,User,} from 'lucide-react';
+import { Award, BookOpen, CalendarCheck, CheckCircle2, Clock, GraduationCap, Medal, Sparkles, Star, Target, Trophy, User } from 'lucide-react';
 
 const getInitials = (name = '') =>
   name
@@ -45,25 +45,11 @@ function ProfileStat({ icon, label, value, hint, color = COLORS.accent }) {
   );
 }
 
-function InfoItem({ icon, label, value }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: COLORS.textSecondary }}>
-      <span style={{ color: COLORS.textMuted, display: 'inline-flex', width: 18 }}>{icon}</span>
-      <div style={{ minWidth: 0 }}>
-        <div style={{ fontSize: 11, color: COLORS.textMuted }}>{label}</div>
-        <div style={{ fontWeight: 600, color: COLORS.textPrimary, overflowWrap: 'anywhere' }}>{value || 'Sin registrarr'}</div>
-      </div>
-    </div>
-  );
-}
-
 export default function ContributorProfilePage() {
   const { session } = useRouteLoaderData('root');
+  const navigate = useNavigate();
   const [loading, setLoading] = React.useState(true);
-  const [saving, setSaving] = React.useState(false);
-  const [editOpen, setEditOpen] = React.useState(false);
   const [perfil, setPerfil] = React.useState(session);
-  const [form, setForm] = React.useState(session);
   const [data, setData] = React.useState({ cursos: [], inscripciones: [], calificaciones: [], asistencias: [] });
 
   React.useEffect(() => {
@@ -82,7 +68,6 @@ export default function ContributorProfilePage() {
 
         if (!active) return;
         setPerfil(perfilActual);
-        setForm(perfilActual);
         setData({ cursos, inscripciones, calificaciones, asistencias });
       } catch (error) {
         toast.error(error.message || 'No fue posible cargar el perfil');
@@ -127,38 +112,6 @@ export default function ContributorProfilePage() {
     { label: 'Ruta completada', active: completados > 0, icon: <Trophy size={18} /> },
   ];
 
-  const handleOpenEdit = () => {
-    setForm(perfil);
-    setEditOpen(true);
-  };
-
-  const handleSaveProfile = async () => {
-    if (!form.nombre || !form.email) {
-      toast.warning('Nombre y correo son obligatorios.', 'Campos requeridos');
-      return;
-    }
-
-    setSaving(true);
-    try {
-      const updated = await tidApi.updatePerfil(perfil.id, {
-        nombre: form.nombre,
-        email: form.email,
-        telefono: form.telefono,
-        area: form.area,
-      });
-      const clean = { ...updated };
-      delete clean.password;
-      setPerfil(clean);
-      setForm(clean);
-      setEditOpen(false);
-      toast.success('Perfil actualizado');
-    } catch (error) {
-      toast.error(error.message || 'No se pudo actualizar el perfil');
-    } finally {
-      setSaving(false);
-    }
-  };
-
   if (!session) {
     return <EmptyState icon={<User size={44} color={COLORS.textMuted} />} title="Acceso requerido" subtitle="Inicia sesion para ver tu perfil" />;
   }
@@ -169,7 +122,7 @@ export default function ContributorProfilePage() {
     <div>
       <div className="page-header">
         <h2>Perfil del colaborador</h2>
-        <p>Tu avance dentro del Campus TIDd</p>
+        <p>Tu avance dentro del Campus TID</p>
       </div>
 
       <div className="card" style={{ marginBottom: 22, overflow: 'hidden' }}>
@@ -215,18 +168,9 @@ export default function ContributorProfilePage() {
               </p>
             </div>
           </div>
-          <button className="btn" onClick={handleOpenEdit} style={{ background: '#fff', color: COLORS.textPrimary }}>
-            <Edit3 size={16} /> Editar perfil
+          <button className="btn" onClick={() => navigate('/contributor-profile/details')} style={{ background: '#fff', color: COLORS.textPrimary }}>
+            <User size={16} /> Ver datos completos
           </button>
-        </div>
-
-        <div className="card-body">
-          <div className="grid-4">
-            <InfoItem icon={<Mail size={16} />} label="Correo" value={perfil.email} />
-            <InfoItem icon={<Phone size={16} />} label="Telefono" value={perfil.telefono} />
-            <InfoItem icon={<Briefcase size={16} />} label="Area" value={perfil.area} />
-            <InfoItem icon={<ShieldCheck size={16} />} label="Rol" value={perfil.rol} />
-          </div>
         </div>
       </div>
 
@@ -325,45 +269,6 @@ export default function ContributorProfilePage() {
           </div>
         </div>
       </div>
-
-      <Modal
-        open={editOpen}
-        onClose={() => setEditOpen(false)}
-        title="Editar perfil"
-        footer={
-          <>
-            <button className="btn btn-secondary" onClick={() => setEditOpen(false)}>
-              Cancelar
-            </button>
-            <button className="btn btn-primary" onClick={handleSaveProfile} disabled={saving}>
-              {saving ? (
-                <>
-                  <div className="spinner" style={{ width: 14, height: 14 }}></div> Guardando...
-                </>
-              ) : (
-                'Guardar cambios'
-              )}
-            </button>
-          </>
-        }
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <FormField label="Nombre">
-            <input className="form-input" value={form.nombre || ''} onChange={(e) => setForm((prev) => ({ ...prev, nombre: e.target.value }))} />
-          </FormField>
-          <FormField label="Correo">
-            <input className="form-input" type="email" value={form.email || ''} onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))} />
-          </FormField>
-          <div className="grid-2">
-            <FormField label="Telefono">
-              <input className="form-input" value={form.telefono || ''} onChange={(e) => setForm((prev) => ({ ...prev, telefono: e.target.value }))} />
-            </FormField>
-            <FormField label="Area">
-              <input className="form-input" value={form.area || ''} onChange={(e) => setForm((prev) => ({ ...prev, area: e.target.value }))} />
-            </FormField>
-          </div>
-        </div>
-      </Modal>
     </div>
   );
 }
