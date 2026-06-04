@@ -4,6 +4,7 @@ import AuthPage from "../pages/auth/AuthPage.jsx";
 import DashboardPage from "../pages/analytical-dashboard/DashboardPage.jsx";
 import AttendanceAssessmentsPage from "../pages/attendance-assessments/AttendanceAssessmentsPage.jsx";
 import ContributorProfilePage from "../pages/contributor-profile/ContributorProfilePage.jsx";
+import ContributorProfileDetailsPage from "../pages/contributor-profile/ContributorProfileDetailsPage.jsx";
 import CourseCatalogPage from "../pages/course-catalog/CourseCatalogPage.jsx";
 import InternalComunicationsPage from "../pages/internal-comunications/InternalComunicationsPage.jsx";
 import RegistrationManagementPage from "../pages/registration-management/RegistrationManagementPage.jsx";
@@ -44,6 +45,7 @@ export const router = createBrowserRouter([
         element: <InternalComunicationsPage />,
       },
       { path: "/contributor-profile", element: <ContributorProfilePage /> },
+      { path: "/contributor-profile/details", element: <ContributorProfileDetailsPage /> },
     ],
   },
 ]);
